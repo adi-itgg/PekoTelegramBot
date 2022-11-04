@@ -6,7 +6,7 @@ import eu.vendeli.tgbot.api.deleteMessage
 import eu.vendeli.tgbot.types.internal.ProcessedUpdate
 import eu.vendeli.tgbot.types.internal.UpdateType
 import me.phantomx.pekonime.bot.PekoTelegramBot.BuildConfig
-import me.phantomx.pekonime.bot.PekoTelegramBot.BuildResources
+import me.phantomx.pekonime.bot.PekoTelegramBot.BuildResources.BLOCKED_WORDS_TXT
 import me.phantomx.pekonime.bot.blockedWords
 import me.phantomx.pekonime.bot.extension.GET
 import me.phantomx.pekonime.bot.extension.mention
@@ -22,7 +22,7 @@ class MessageController {
         val msg = update.fullUpdate.message?.text?.lowercase() ?: return
 
         if (blockedWords.isEmpty())
-            blockedWords = BuildResources.BLOCKED_WORDS_TXT.readText().split("\n").toList()
+            blockedWords = BLOCKED_WORDS_TXT.get().split("\n").toList()
 
         blockedWords.forEach {
             if (!msg.contains(it)) return@forEach

@@ -19,6 +19,8 @@ repositories {
 dependencies {
     testImplementation(kotlin("test"))
 
+    implementation("com.google.code.gson:gson:2.10")
+
     // modified in gradle cache
     implementation("eu.vendeli:telegram-bot:2.2.2")
     // modified but intellij idea have bug index external jar
@@ -49,13 +51,13 @@ buildConfig {
         var currLength = 0
         forEach { (k, v) ->
             if (k !is String || v !is String) return@forEach
-            if (currLength > 68) {
-                sb.append("\n")
-                currLength = 0
-            }
             if (sb.length > 2) {
                 sb.append(", ")
                 currLength += 2
+            }
+            if (currLength > 48) {
+                sb.append("\n")
+                currLength = 0
             }
             val value = "\"$k\" to \"$v\""
             sb.append(value)
@@ -107,11 +109,26 @@ task("generateResourcesConstants") {
 
     doFirst {
         sourceSets["main"].resources.asFileTree.visit {
+            if (isDirectory) return@visit
             val name = path.toUpperCase().replace("\\W".toRegex(), "_")
 
-            buildResources.buildConfigField("java.io.File", name, "\nFile(\"configuration\\\\$path\")")
+            buildResources.buildConfigField("me.phantomx.pekonime.bot.utils.FileChecker", name, "\nFileChecker(\"configuration\\\\${path.replace("/", "\\\\")}\")")
         }
     }
 
     generateBuildConfig.dependsOn(this)
+}
+
+
+tasks.create("buildJar", Jar::class) {
+    group = "application" // OR, for example, "build"
+    description = "Creates a self-contained fat JAR of the application that can be run."
+    manifest.attributes["Main-Class"] = "me.phantomx.pekonime.bot.MainKt"
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    val dependencies = configurations
+        .runtimeClasspath
+        .get()
+        .map(::zipTree)
+    from(dependencies)
+    with(tasks.jar.get())
 }

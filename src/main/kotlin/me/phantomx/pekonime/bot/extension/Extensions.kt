@@ -1,10 +1,16 @@
 package me.phantomx.pekonime.bot.extension
 
+import com.google.gson.reflect.TypeToken
 import eu.vendeli.tgbot.api.botactions.setMyCommands
 import eu.vendeli.tgbot.types.ParseMode
 import eu.vendeli.tgbot.types.User
 import me.phantomx.pekonime.bot.PekoTelegramBot.BuildConfig
+import me.phantomx.pekonime.bot.PekoTelegramBot.BuildResources
+import me.phantomx.pekonime.bot.PekoTelegramBot.BuildResources.DATA_BOT_PC_DATA_JSON
 import me.phantomx.pekonime.bot.bot
+import me.phantomx.pekonime.bot.data.BotPrivateChatData
+import me.phantomx.pekonime.bot.gson
+import me.phantomx.pekonime.bot.privateChatData
 
 val User.mention: String get() = "<a href=\"tg://user?id=$id\">@$firstName</a>"
 
@@ -23,3 +29,10 @@ suspend fun registerMyCommands() = setMyCommands {
         botCommand("/$k", v)
     }
 }.send(bot)
+
+
+fun loadPrivateChatBotData() {
+    if (privateChatData.isNotEmpty()) return
+    val type = object : TypeToken< MutableMap<Long, BotPrivateChatData>>(){}.type
+    privateChatData = gson.fromJson(DATA_BOT_PC_DATA_JSON.get(), type) ?: return
+}

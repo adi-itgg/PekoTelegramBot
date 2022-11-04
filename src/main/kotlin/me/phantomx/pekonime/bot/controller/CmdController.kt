@@ -1,5 +1,6 @@
 package me.phantomx.pekonime.bot.controller
 
+import com.google.gson.Gson
 import eu.vendeli.tgbot.TelegramBot
 import eu.vendeli.tgbot.annotations.CommandHandler
 import eu.vendeli.tgbot.api.chat.*
@@ -14,7 +15,6 @@ import me.phantomx.pekonime.bot.PekoTelegramBot.BuildConfig.BUTTON_START
 import me.phantomx.pekonime.bot.PekoTelegramBot.BuildConfig.MESSAGE_WELCOME
 import me.phantomx.pekonime.bot.PekoTelegramBot.BuildConfig.TELEGRAM_ME
 import me.phantomx.pekonime.bot.PekoTelegramBot.BuildResources.RULES_HTML
-import me.phantomx.pekonime.bot.cacheData
 import me.phantomx.pekonime.bot.extension.GET
 import me.phantomx.pekonime.bot.extension.mention
 import me.phantomx.pekonime.bot.extension.messageHtml
@@ -53,12 +53,8 @@ class CmdController {
     }
 
     @CommandHandler(["/rules", "/peraturan"])
-    suspend fun rules(update: ProcessedUpdate, bot: TelegramBot) {
-        val content = cacheData[RULES_HTML.name] ?: RULES_HTML.readText().apply {
-            cacheData[RULES_HTML.name] = this
-        }
-
-        messageHtml(update.user, content)
+    suspend fun rules(update: ProcessedUpdate) {
+        messageHtml(update.user, RULES_HTML.get())
     }
 
 }
