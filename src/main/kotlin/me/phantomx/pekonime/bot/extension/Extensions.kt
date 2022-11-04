@@ -18,7 +18,7 @@ suspend fun messageHtml(id: Long, message: () -> String) =
 suspend fun messageHtml(user: User, message: () -> String) = messageHtml(user.id, message)
 suspend fun messageHtml(user: User, message: String) = messageHtml(user.id) { message }
 
-suspend fun myCommands() = setMyCommands {
+suspend fun registerMyCommands() = setMyCommands {
     BuildConfig.COMMANDS.commands.forEach { (k, v) ->
         botCommand("/$k", v)
     }

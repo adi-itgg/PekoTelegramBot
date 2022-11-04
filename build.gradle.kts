@@ -19,13 +19,10 @@ repositories {
 dependencies {
     testImplementation(kotlin("test"))
 
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
-    implementation("io.insert-koin:koin-core:3.2.2")
-    implementation("com.google.code.gson:gson:2.10")
-
+    // modified in gradle cache
     implementation("eu.vendeli:telegram-bot:2.2.2")
-    // modified
-    implementation(fileTree("dir" to "G:\\Github\\telegram-bot\\telegram-bot\\build\\libs", "include" to "*.jar"))
+    // modified but intellij idea have bug index external jar
+    //implementation(fileTree("libs") { include("*.jar") })
 }
 
 tasks.test {
@@ -46,14 +43,25 @@ buildConfig {
 
 
     Properties().apply {
-        load(FileInputStream(rootProject.file("mycommand.properties")))
+        load(FileInputStream(rootProject.file("configuration\\mycommand.properties")))
 
-        val sb = StringBuilder()
+        val sb = StringBuilder("\n")
+        var currLength = 0
         forEach { (k, v) ->
             if (k !is String || v !is String) return@forEach
-            if (sb.isNotEmpty()) sb.append(", ")
-            sb.append("\"$k\" to \"$v\"")
+            if (currLength > 68) {
+                sb.append("\n")
+                currLength = 0
+            }
+            if (sb.length > 2) {
+                sb.append(", ")
+                currLength += 2
+            }
+            val value = "\"$k\" to \"$v\""
+            sb.append(value)
+            currLength += value.length
         }
+        sb.append("\n")
         buildConfigField("me.phantomx.pekonime.bot.data.Commands", "COMMANDS", "Commands($sb)")
     }
 
@@ -64,13 +72,30 @@ buildConfig {
 
 fun BuildConfigExtension.loadProperties(filename: String) {
     val settings = Properties()
-    settings.load(FileInputStream(rootProject.file(filename)))
+    settings.load(FileInputStream(rootProject.file("configuration\\$filename")))
     settings.forEach { (k, v) ->
         if (k !is String || v !is String) return@forEach
+
+        val sb = StringBuilder()
+        var currentLength = 0
+        if (v.length > 50)
+            v.forEach {
+                if (currentLength > 50) {
+                    sb.append("\" +\n\"")
+                    currentLength = 0
+                }
+
+                currentLength += 1
+                sb.append(it)
+            }
+        else sb.append(v)
+
+        val isLong = v.toLongOrNull()?.run { true } ?: false
+
         buildConfigField(
-            type = "String",
+            type = if (isLong) "kotlin.Long" else "String",
             name = k.replace(".", "_").toUpperCase(),
-            value = "\"${v.replace("\n", "\\n").replace(" ", "~nl~")}\""
+            value = if (isLong) "\n$sb" else "\n\"$sb\""
         )
     }
 }
@@ -81,11 +106,11 @@ task("generateResourcesConstants") {
     val buildResources = buildConfig.forClass("BuildResources")
 
     doFirst {
-        sourceSets["main"].resources.asFileTree.visit(Action<FileVisitDetails> {
+        sourceSets["main"].resources.asFileTree.visit {
             val name = path.toUpperCase().replace("\\W".toRegex(), "_")
 
-            buildResources.buildConfigField("java.io.File", name, "File(\"$path\")")
-        })
+            buildResources.buildConfigField("java.io.File", name, "\nFile(\"configuration\\\\$path\")")
+        }
     }
 
     generateBuildConfig.dependsOn(this)
