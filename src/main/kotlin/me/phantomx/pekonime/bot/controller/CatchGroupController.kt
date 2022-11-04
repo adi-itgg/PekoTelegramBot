@@ -9,7 +9,6 @@ import eu.vendeli.tgbot.types.ParseMode
 import eu.vendeli.tgbot.types.internal.ProcessedUpdate
 import eu.vendeli.tgbot.types.internal.Response
 import me.phantomx.pekonime.bot.PekoTelegramBot.BuildConfig.BOT_ID
-import me.phantomx.pekonime.bot.PekoTelegramBot.BuildConfig.BOT_ID_LONG
 import me.phantomx.pekonime.bot.PekoTelegramBot.BuildConfig.USER_ADMIN_ID
 import me.phantomx.pekonime.bot.PekoTelegramBot.BuildResources.DATA_BOT_PC_DATA_JSON
 import me.phantomx.pekonime.bot.data.BotPrivateChatData
@@ -64,9 +63,9 @@ class CatchGroupController {
 
         // is bot message
         val replyMsg = msg.replyToMessage ?: return
-        val id = replyMsg.from?.id ?: return
+        val id = replyMsg.from?.username ?: return
 
-        if (id != BOT_ID_LONG) return
+        if (id != BOT_ID) return
 
         when (val res = message {
             "$text\n<pre>by</pre> ${update.user.mention}"

@@ -25,7 +25,7 @@ class MessageController {
             blockedWords = BLOCKED_WORDS_TXT.get().split("\n").toList()
 
         blockedWords.forEach {
-            if (!msg.contains(it)) return@forEach
+            if (!msg.contains(it) || it.isEmpty()) return@forEach
             // if contains
             deleteMessage(update.fullUpdate.message?.messageId ?: 0).send(BuildConfig.BOT_GROUP_ID, bot)
             messageHtml(update.user) {

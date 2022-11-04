@@ -112,7 +112,7 @@ task("generateResourcesConstants") {
             if (isDirectory) return@visit
             val name = path.toUpperCase().replace("\\W".toRegex(), "_")
 
-            buildResources.buildConfigField("me.phantomx.pekonime.bot.utils.FileChecker", name, "\nFileChecker(\"configuration\\\\${path.replace("/", "\\\\")}\")")
+            buildResources.buildConfigField("me.phantomx.pekonime.bot.utils.FileChecker", name, "\nFileChecker(\"configuration/$path\")")
         }
     }
 

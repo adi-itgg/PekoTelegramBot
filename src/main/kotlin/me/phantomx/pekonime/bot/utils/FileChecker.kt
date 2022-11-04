@@ -10,7 +10,7 @@ class FileChecker(path: String) {
     private var content = ""
 
     private fun createDirs() {
-        file.parentFile.apply {
+        file.parentFile?.apply {
             if (exists()) return@apply
             mkdirs()
             mkdir()

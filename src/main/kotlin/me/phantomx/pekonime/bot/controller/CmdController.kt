@@ -1,6 +1,5 @@
 package me.phantomx.pekonime.bot.controller
 
-import com.google.gson.Gson
 import eu.vendeli.tgbot.TelegramBot
 import eu.vendeli.tgbot.annotations.CommandHandler
 import eu.vendeli.tgbot.api.chat.*
@@ -9,6 +8,7 @@ import eu.vendeli.tgbot.types.ChatPermissions
 import eu.vendeli.tgbot.types.ParseMode
 import eu.vendeli.tgbot.types.internal.ProcessedUpdate
 import eu.vendeli.tgbot.utils.inlineKeyboardMarkup
+import me.phantomx.pekonime.bot.PekoTelegramBot.BuildConfig
 import me.phantomx.pekonime.bot.PekoTelegramBot.BuildConfig.BOT_GROUP
 import me.phantomx.pekonime.bot.PekoTelegramBot.BuildConfig.BOT_GROUP_ID
 import me.phantomx.pekonime.bot.PekoTelegramBot.BuildConfig.BUTTON_START
@@ -55,6 +55,19 @@ class CmdController {
     @CommandHandler(["/rules", "/peraturan"])
     suspend fun rules(update: ProcessedUpdate) {
         messageHtml(update.user, RULES_HTML.get())
+    }
+
+    @CommandHandler(["/gmsg", "/groupmessage"])
+    suspend fun toggleAdminMessageGroup(update: ProcessedUpdate, bot: TelegramBot) {
+        if (update.user.id != BuildConfig.USER_ADMIN_ID || update.fullUpdate.message?.chat?.id != BuildConfig.USER_ADMIN_ID) return
+
+        isAdminSendMessageGroup = !isAdminSendMessageGroup
+
+        message {
+            "Admin message group is ${if (isAdminSendMessageGroup) "active" else "deactivated"}"
+        }.options {
+            replyToMessageId = update.fullUpdate.message?.messageId
+        }.send(update.user.id, bot)
     }
 
 }

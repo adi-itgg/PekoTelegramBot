@@ -13,7 +13,7 @@ val bot = TelegramBot.Builder(BOT_TOKEN) {
     httpLogLevel = HttpLogLevel.NONE
 }.build()
 
-val gson = GsonBuilder().setPrettyPrinting().create()
+val gson: Gson = GsonBuilder().setPrettyPrinting().create()
 val npGson = Gson()
 
 
