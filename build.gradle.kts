@@ -39,9 +39,10 @@ application {
     mainClass.set("MainKt")
 }
 
+val isTesting = false
+
 buildConfig {
     buildConfigField("String", "TELEGRAM_ME", "\"https://t.me/\"")
-
 
 
     Properties().apply {
@@ -67,7 +68,7 @@ buildConfig {
         buildConfigField("me.phantomx.pekonime.bot.data.Commands", "COMMANDS", "Commands($sb)")
     }
 
-    loadProperties("settings.properties")
+    loadProperties((if (isTesting) "test." else "") + "settings.properties")
     loadProperties("message.properties")
     loadProperties("buttons.properties")
 }

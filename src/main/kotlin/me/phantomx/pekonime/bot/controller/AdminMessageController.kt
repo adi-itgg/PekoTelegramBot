@@ -3,6 +3,7 @@ package me.phantomx.pekonime.bot.controller
 import eu.vendeli.tgbot.TelegramBot
 import eu.vendeli.tgbot.annotations.UnprocessedHandler
 import eu.vendeli.tgbot.api.message
+import eu.vendeli.tgbot.enums.MethodPriority
 import eu.vendeli.tgbot.interfaces.sendAsync
 import eu.vendeli.tgbot.types.ParseMode
 import eu.vendeli.tgbot.types.internal.ProcessedUpdate
@@ -19,6 +20,8 @@ class AdminMessageController {
 
     private val logger = LoggerFactory.getLogger(this::class.java)
 
+    var isHandledMessageGroup = false
+
     @UnprocessedHandler
     suspend fun onAdminReplyMessage(update: ProcessedUpdate, bot: TelegramBot) {
         if (update.user.id != BuildConfig.USER_ADMIN_ID) return
@@ -30,6 +33,9 @@ class AdminMessageController {
 
         loadPrivateChatBotData()
         val data = privateChatData[replyTo] ?: return
+
+        if (data.chatId < 0L)
+            isHandledMessageGroup = true
 
         when(val res = message {
             text
@@ -48,12 +54,17 @@ class AdminMessageController {
 
     }
 
-    @UnprocessedHandler
+    @UnprocessedHandler(priority = MethodPriority.LOWEST)
     suspend fun onAdminSendMessage(update: ProcessedUpdate, bot: TelegramBot) {
         if (update.user.id != USER_ADMIN_ID || update.fullUpdate.message?.chat?.id != USER_ADMIN_ID) return
         if (!isAdminSendMessageGroup) return
 
         val text = update.fullUpdate.message?.text ?: return
+
+        if (isHandledMessageGroup) {
+            isHandledMessageGroup = false
+            return
+        }
 
         message(text).options {
             parseMode = ParseMode.MarkdownV2
