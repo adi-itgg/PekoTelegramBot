@@ -7,7 +7,8 @@ import eu.vendeli.tgbot.interfaces.sendAsync
 import eu.vendeli.tgbot.types.ParseMode
 import eu.vendeli.tgbot.types.internal.ProcessedUpdate
 import eu.vendeli.tgbot.types.internal.Response
-import me.phantomx.pekonime.bot.PekoTelegramBot.BuildConfig.BOT_GROUP_ID
+import me.phantomx.pekonime.bot.BotM.groupChat
+import me.phantomx.pekonime.bot.BotM.isInitializedGroupChat
 import me.phantomx.pekonime.bot.PekoTelegramBot.BuildConfig.USER_ADMIN_ID
 import me.phantomx.pekonime.bot.PekoTelegramBot.BuildResources.DATA_BOT_PC_DATA_JSON
 import me.phantomx.pekonime.bot.data.BotPrivateChatData
@@ -23,9 +24,9 @@ class CatchUserPrivateChatController {
 
     @UnprocessedHandler
     suspend fun onPrivateChat(update: ProcessedUpdate, bot: TelegramBot) {
-        if (update.user.id == USER_ADMIN_ID) return
+        if (update.user.id == USER_ADMIN_ID || !isInitializedGroupChat) return
         val msg = update.fullUpdate.message ?: return
-        if (msg.chat.id == BOT_GROUP_ID) return
+        if (msg.chat.id == groupChat.id) return
 
         val text = msg.text ?: return
 

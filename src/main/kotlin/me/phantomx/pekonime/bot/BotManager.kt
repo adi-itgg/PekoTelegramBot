@@ -4,9 +4,11 @@ import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import eu.vendeli.tgbot.TelegramBot
 import eu.vendeli.tgbot.enums.HttpLogLevel
+import eu.vendeli.tgbot.types.User
 import me.phantomx.pekonime.bot.PekoTelegramBot.BuildConfig.BOT_TOKEN
 import me.phantomx.pekonime.bot.controller.CmdController
 import me.phantomx.pekonime.bot.data.BotPrivateChatData
+import me.phantomx.pekonime.bot.data.BotProfile
 
 val bot = TelegramBot.Builder(BOT_TOKEN) {
     controllersPackage = CmdController::class.java.packageName
@@ -15,7 +17,6 @@ val bot = TelegramBot.Builder(BOT_TOKEN) {
 
 val gson: Gson = GsonBuilder().setPrettyPrinting().create()
 val npGson = Gson()
-
 
 var blockedWords = listOf<String>()
 

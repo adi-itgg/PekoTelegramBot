@@ -9,7 +9,12 @@ import eu.vendeli.tgbot.types.ChatPermissions
 import eu.vendeli.tgbot.types.ParseMode
 import eu.vendeli.tgbot.types.internal.ProcessedUpdate
 import eu.vendeli.tgbot.utils.inlineKeyboardMarkup
-import me.phantomx.pekonime.bot.PekoTelegramBot.BuildConfig
+import me.phantomx.pekonime.bot.BotM.groupChat
+import me.phantomx.pekonime.bot.BotM.isInitializedGroupChat
+import me.phantomx.pekonime.bot.PekoTelegramBot.BuildConfig.INLINE_BUTTON_START
+import me.phantomx.pekonime.bot.PekoTelegramBot.BuildConfig.MESSAGE_GROUP_WELCOME
+import me.phantomx.pekonime.bot.PekoTelegramBot.BuildConfig.TELEGRAM_ME
+import me.phantomx.pekonime.bot.botProfile
 import me.phantomx.pekonime.bot.extension.GET
 import me.phantomx.pekonime.bot.extension.mention
 
@@ -17,6 +22,7 @@ class JoinLeaveController {
 
     @UnprocessedHandler
     suspend fun onJoinLeave(update: ProcessedUpdate, bot: TelegramBot) {
+        if (!isInitializedGroupChat) return
         val msg = update.fullUpdate.message ?: return
 
         // remove join & leave message
@@ -24,17 +30,17 @@ class JoinLeaveController {
         val isLeave = msg.leftChatMember != null
 
         if (isJoin || isLeave)
-            deleteMessage(msg.messageId).send(BuildConfig.BOT_GROUP_ID, bot)
+            deleteMessage(msg.messageId).send(groupChat.id, bot)
 
         if (isJoin)
             message {
-                BuildConfig.MESSAGE_GROUP_WELCOME.GET.format(update.user.mention)
+                MESSAGE_GROUP_WELCOME.GET.format(update.user.mention)
             }.options {
                 parseMode = ParseMode.HTML
             }.markup {
                 inlineKeyboardMarkup {
-                    url(BuildConfig.BUTTON_START) {
-                        BuildConfig.TELEGRAM_ME + BuildConfig.BOT_ID
+                    url(INLINE_BUTTON_START) {
+                        TELEGRAM_ME + botProfile.username
                     }
                 }
             }.send(msg.chat.id, bot)
@@ -47,7 +53,7 @@ class JoinLeaveController {
                     canSendMessages = false
                 ),
                 untilDate = 0
-            ).send(BuildConfig.BOT_GROUP_ID, bot)
+            ).send(groupChat.id, bot)
         }
     }
 
