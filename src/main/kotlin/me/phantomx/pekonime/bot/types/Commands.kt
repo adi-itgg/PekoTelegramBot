@@ -1,4 +1,4 @@
-package me.phantomx.pekonime.bot.data
+package me.phantomx.pekonime.bot.types
 
 class Commands(vararg args: Pair<String, String>) {
 

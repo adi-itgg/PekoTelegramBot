@@ -1,9 +1,9 @@
-package me.phantomx.pekonime.bot.data
+package me.phantomx.pekonime.bot.types
 
 import eu.vendeli.tgbot.types.User
 
 class BotProfile(
-    val user: User
+    private val user: User
 ) {
 
     val username: String

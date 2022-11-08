@@ -65,7 +65,7 @@ buildConfig {
             currLength += value.length
         }
         sb.append("\n")
-        buildConfigField("me.phantomx.pekonime.bot.data.Commands", "COMMANDS", "Commands($sb)")
+        buildConfigField("me.phantomx.pekonime.bot.types.Commands", "COMMANDS", "Commands($sb)")
     }
 
     loadProperties((if (isTesting) "test." else "") + "settings.properties")

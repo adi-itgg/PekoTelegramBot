@@ -8,9 +8,11 @@ import eu.vendeli.tgbot.interfaces.sendAsync
 import eu.vendeli.tgbot.types.ParseMode
 import eu.vendeli.tgbot.types.internal.Response
 import me.phantomx.pekonime.bot.BotM.groupChat
+import me.phantomx.pekonime.bot.PekoTelegramBot.BuildConfig.MESSAGE_REPLY_FAILED
+import me.phantomx.pekonime.bot.PekoTelegramBot.BuildConfig.MESSAGE_REPLY_SUCCESS
 import me.phantomx.pekonime.bot.PekoTelegramBot.BuildConfig.USER_ADMIN_ID
 import me.phantomx.pekonime.bot.bot
-import me.phantomx.pekonime.bot.extension.loadPrivateChatBotData
+import me.phantomx.pekonime.bot.types.loadPrivateChatBotData
 import me.phantomx.pekonime.bot.npGson
 import me.phantomx.pekonime.bot.privateChatData
 import org.slf4j.LoggerFactory
@@ -36,13 +38,13 @@ class AdminMessageController {
         when(val res = message {
             text
         }.options {
-            parseMode = ParseMode.HTML
+            parseMode = ParseMode.MarkdownV2
             replyToMessageId = data.replyMsgId
         }.sendAsync(data.chatId, bot).await()) {
             is Response.Failure -> logger.error("Failure send message to reply - ${npGson.toJson(data)}")
             is Response.Success -> // the data in privateChatData should be deleted to reduce storage
                 message {
-                    "Reply status ${if (res.ok) "success" else "failure"}"
+                    if (res.ok) MESSAGE_REPLY_SUCCESS else MESSAGE_REPLY_FAILED
                 }.options {
                     replyToMessageId = msg.messageId
                 }.send(e.user, bot)

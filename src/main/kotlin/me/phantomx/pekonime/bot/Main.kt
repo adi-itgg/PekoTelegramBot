@@ -10,9 +10,8 @@ import me.phantomx.pekonime.bot.BotM.groupChat
 import me.phantomx.pekonime.bot.PekoTelegramBot.BuildConfig.BOT_TOKEN
 import me.phantomx.pekonime.bot.PekoTelegramBot.BuildResources.DATA_BOT_DATA_JSON
 import me.phantomx.pekonime.bot.PekoTelegramBot.BuildResources.DATA_GROUP_JSON
-import me.phantomx.pekonime.bot.data.BotProfile
-import me.phantomx.pekonime.bot.extension.registerMyCommands
-import me.phantomx.pekonime.bot.utils.toClassObj
+import me.phantomx.pekonime.bot.extension.toClassObj
+import me.phantomx.pekonime.bot.types.BotProfile
 import org.slf4j.LoggerFactory
 import kotlin.system.exitProcess
 
@@ -31,21 +30,24 @@ fun main(): Unit = runBlocking {
     val logger = LoggerFactory.getLogger("Main")
 
 
-    DATA_BOT_DATA_JSON.get().toClassObj<Map<String, BotProfile>> {
+    DATA_BOT_DATA_JSON.get.toClassObj<Map<String, BotProfile>> {
         it.isNotEmpty()
     }?.get(BOT_TOKEN)?.let {
         meProfile = it
+        logger.debug("Loaded bot profile data from cache")
     } ?: run {
         logger.debug("Getting bot profile data...")
         getMe().sendAsync(bot).await().onSuccess { response ->
             meProfile = BotProfile(response.result)
-            DATA_BOT_DATA_JSON.get().toClassObj<MutableMap<String, BotProfile>> {
-                it.isNotEmpty()
-            }?.let {
-                it[BOT_TOKEN] = meProfile
-                DATA_BOT_DATA_JSON.write(gson.toJson(it))
-            } ?: run {
-                DATA_BOT_DATA_JSON.write(gson.toJson(mapOf(BOT_TOKEN to meProfile)))
+            DATA_BOT_DATA_JSON.write {
+                DATA_BOT_DATA_JSON.get.toClassObj<MutableMap<String, BotProfile>> {
+                    it.isNotEmpty()
+                }?.let {
+                    it[BOT_TOKEN] = meProfile
+                    gson.toJson(it)
+                } ?: run {
+                    gson.toJson(mapOf(BOT_TOKEN to meProfile))
+                }
             }
         }.onFailure {
             logger.error("${it.errorCode}: ${it.description}")
@@ -53,7 +55,7 @@ fun main(): Unit = runBlocking {
         }
     }
 
-    DATA_GROUP_JSON.get().toClassObj<Chat> {
+    DATA_GROUP_JSON.get.toClassObj<Chat> {
         it.id != 0L
     }?.let {
         groupChat = it

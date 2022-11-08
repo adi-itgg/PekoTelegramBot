@@ -5,7 +5,6 @@ import eu.vendeli.tgbot.annotations.UnprocessedHandler
 import eu.vendeli.tgbot.api.chat.restrictChatMember
 import eu.vendeli.tgbot.api.deleteMessage
 import eu.vendeli.tgbot.api.message
-import eu.vendeli.tgbot.types.ChatPermissions
 import eu.vendeli.tgbot.types.ParseMode
 import eu.vendeli.tgbot.types.internal.ProcessedUpdate
 import eu.vendeli.tgbot.utils.inlineKeyboardMarkup
@@ -15,8 +14,7 @@ import me.phantomx.pekonime.bot.PekoTelegramBot.BuildConfig.INLINE_BUTTON_START
 import me.phantomx.pekonime.bot.PekoTelegramBot.BuildConfig.MESSAGE_GROUP_WELCOME
 import me.phantomx.pekonime.bot.PekoTelegramBot.BuildConfig.TELEGRAM_ME
 import me.phantomx.pekonime.bot.botProfile
-import me.phantomx.pekonime.bot.extension.GET
-import me.phantomx.pekonime.bot.extension.mention
+import me.phantomx.pekonime.bot.utils.mention
 
 class JoinLeaveController {
 
@@ -34,14 +32,12 @@ class JoinLeaveController {
 
         if (isJoin)
             message {
-                MESSAGE_GROUP_WELCOME.GET.format(update.user.mention)
+                MESSAGE_GROUP_WELCOME.format(update.user.mention)
             }.options {
                 parseMode = ParseMode.HTML
             }.markup {
                 inlineKeyboardMarkup {
-                    url(INLINE_BUTTON_START) {
-                        TELEGRAM_ME + botProfile.username
-                    }
+                    INLINE_BUTTON_START url TELEGRAM_ME + botProfile.username
                 }
             }.send(msg.chat.id, bot)
 
@@ -49,11 +45,10 @@ class JoinLeaveController {
         msg.newChatMembers?.forEach {
             restrictChatMember(
                 userId = it.id,
-                chatPermissions = ChatPermissions(
-                    canSendMessages = false
-                ),
                 untilDate = 0
-            ).send(groupChat.id, bot)
+            ) {
+                canSendMessages = false
+            }.send(groupChat.id, bot)
         }
     }
 

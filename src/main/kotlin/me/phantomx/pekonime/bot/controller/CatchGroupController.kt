@@ -6,7 +6,7 @@ import eu.vendeli.tgbot.interfaces.Event
 import eu.vendeli.tgbot.types.EntityType
 import me.phantomx.pekonime.bot.PekoTelegramBot.BuildConfig.USER_ADMIN_ID
 import me.phantomx.pekonime.bot.botProfile
-import me.phantomx.pekonime.bot.utils.notifyAdminMessage
+import me.phantomx.pekonime.bot.extension.notifyAdminMessage
 import org.slf4j.LoggerFactory
 
 class CatchGroupController {

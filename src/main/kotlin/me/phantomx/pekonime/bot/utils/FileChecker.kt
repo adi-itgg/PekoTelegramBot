@@ -9,6 +9,9 @@ class FileChecker(path: String) {
     private var lastModified = -1L
     private var content = ""
 
+    val get: String
+        get() = get()
+
     private fun createDirs() {
         file.parentFile?.apply {
             if (exists()) return@apply
@@ -27,15 +30,15 @@ class FileChecker(path: String) {
         lastModified = file.lastModified()
     }
 
-    fun get(): String {
+    private fun get(): String {
         check()
         return content
     }
 
-    fun write(text: String) {
-        content = text
+    fun write(text: () -> String) {
+        content = text()
         createDirs()
-        file.writeText(text)
+        file.writeText(content)
         lastModified = file.lastModified()
     }
 
