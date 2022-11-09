@@ -35,7 +35,7 @@ import org.slf4j.LoggerFactory
 @Suppress("unused")
 class CmdController {
 
-    private val logger = LoggerFactory.getLogger(this::class.java)
+    private val logger = LoggerFactory.getLogger(this::class.java.simpleName)
 
     @CommandHandler(["/start", "/mulai"])
     suspend fun start(e: Event) {

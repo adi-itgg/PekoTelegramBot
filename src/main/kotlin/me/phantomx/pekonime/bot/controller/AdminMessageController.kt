@@ -19,14 +19,14 @@ import org.slf4j.LoggerFactory
 
 class AdminMessageController {
 
-    private val logger = LoggerFactory.getLogger(this::class.java)
+    private val logger = LoggerFactory.getLogger(this::class.java.simpleName)
 
     @UnprocessedHandler
     suspend fun onAdminReplyMessage(e: Event) {
         if (e.user.id != USER_ADMIN_ID) return
 
         val msg = e.fullUpdate.message ?: return
-        val text = msg.text ?: return
+        var text = msg.text ?: msg.caption ?: return
 
         val replyTo = msg.replyToMessage?.messageId ?: return
 
@@ -35,11 +35,18 @@ class AdminMessageController {
 
         e.isCancelled = true
 
+        val dontReplyMsg = text.startsWith("!nr")
+        if (dontReplyMsg) {
+            text = text.substring(3)
+            if (text.startsWith(" ")) text = text.substring(1)
+        }
+
         when(val res = message {
             text
         }.options {
-            parseMode = ParseMode.MarkdownV2
-            replyToMessageId = data.replyMsgId
+            parseMode = ParseMode.HTML
+            if (!dontReplyMsg)
+                replyToMessageId = data.replyMsgId
         }.sendAsync(data.chatId, bot).await()) {
             is Response.Failure -> logger.error("Failure send message to reply - ${npGson.toJson(data)}")
             is Response.Success -> // the data in privateChatData should be deleted to reduce storage
@@ -52,7 +59,7 @@ class AdminMessageController {
 
     }
 
-    @UnprocessedHandler(priority = MethodPriority.LOWEST)
+    @UnprocessedHandler(priority = MethodPriority.LOW)
     suspend fun onAdminSendMessage(e: Event) {
         if (e.user.id != USER_ADMIN_ID || e.fullUpdate.message?.chat?.id != USER_ADMIN_ID) return
         if (!isAdminSendMessageGroup) return
@@ -60,8 +67,10 @@ class AdminMessageController {
         val text = e.fullUpdate.message?.text ?: return
 
         message(text).options {
-            parseMode = ParseMode.MarkdownV2
+            parseMode = ParseMode.HTML
         }.send(groupChat.id, e.bot)
+
+        e.isHandled = true
 
     }
 

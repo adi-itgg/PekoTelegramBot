@@ -4,6 +4,8 @@ import eu.vendeli.tgbot.TelegramBot
 import eu.vendeli.tgbot.annotations.UnprocessedHandler
 import eu.vendeli.tgbot.api.deleteMessage
 import eu.vendeli.tgbot.api.message
+import eu.vendeli.tgbot.enums.MethodPriority
+import eu.vendeli.tgbot.interfaces.Event
 import eu.vendeli.tgbot.types.ParseMode
 import eu.vendeli.tgbot.types.internal.ProcessedUpdate
 import eu.vendeli.tgbot.types.internal.UpdateType
@@ -12,9 +14,13 @@ import me.phantomx.pekonime.bot.BotM.isInitializedGroupChat
 import me.phantomx.pekonime.bot.PekoTelegramBot.BuildConfig.MESSAGE_WARN_TOXIC
 import me.phantomx.pekonime.bot.PekoTelegramBot.BuildResources.BLOCKED_WORDS_TXT
 import me.phantomx.pekonime.bot.blockedWords
+import me.phantomx.pekonime.bot.gson
 import me.phantomx.pekonime.bot.utils.mention
+import org.slf4j.LoggerFactory
 
 class MessageController {
+
+    private val logger = LoggerFactory.getLogger(this::class.simpleName)
 
     @UnprocessedHandler
     suspend fun blockBadWords(update: ProcessedUpdate, bot: TelegramBot) {
@@ -37,6 +43,13 @@ class MessageController {
                 parseMode = ParseMode.HTML
             }.send(update.user, bot)
         }
+    }
+
+    @UnprocessedHandler(priority = MethodPriority.LOWEST)
+    suspend fun onDataNotHandled(e: Event) {
+        if (e.isHandled) return
+
+        logger.warn("data not handled: ${gson.toJson(e.fullUpdate)}")
     }
 
 }

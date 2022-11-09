@@ -11,14 +11,14 @@ import org.slf4j.LoggerFactory
 
 class CatchGroupController {
 
-    private val logger = LoggerFactory.getLogger(this::class.java)
+    private val logger = LoggerFactory.getLogger(this::class.java.simpleName)
 
     @UnprocessedHandler(priority = MethodPriority.LOW)
     suspend fun catchMention(e: Event) {
         if (e.user.id == USER_ADMIN_ID) return
         val msg = e.fullUpdate.message ?: return
 
-        val text = msg.text ?: return
+        val text = msg.text ?: msg.caption ?: return
         if (!text.contains(botProfile.username) || text.startsWith("/")) return
 
         val entities = msg.entities ?: return
@@ -27,6 +27,8 @@ class CatchGroupController {
 
         e.notifyAdminMessage()
 
+        e.isHandled = true
+
     }
 
     @UnprocessedHandler
@@ -34,7 +36,7 @@ class CatchGroupController {
         if (e.user.id == USER_ADMIN_ID) return
         val msg = e.fullUpdate.message ?: return
 
-        msg.text ?: return
+        msg.text ?: msg.caption ?: return
 
         // is bot message
         val replyMsg = msg.replyToMessage ?: return
